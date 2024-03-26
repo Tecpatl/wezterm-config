@@ -7,42 +7,18 @@ local mod = {}
 
 if platform.is_mac then
    mod.SUPER = 'SUPER'
-   mod.SUPER_REV = 'SUPER|CTRL'
+   mod.SUPER_REV = 'SUPER|SHIFT'
 elseif platform.is_win then
    mod.SUPER = 'ALT' -- to not conflict with Windows key shortcuts
    mod.SUPER_REV = 'ALT|CTRL'
+elseif platform.is_linux then
+   mod.SUPER = 'ALT'
+   mod.SUPER_REV = 'ALT|SHIFT'
 end
 
 local keys = {
    -- misc/useful --
-   { key = 'F1', mods = 'NONE', action = 'ActivateCopyMode' },
-   { key = 'F2', mods = 'NONE', action = act.ActivateCommandPalette },
-   { key = 'F3', mods = 'NONE', action = act.ShowLauncher },
-   { key = 'F4', mods = 'NONE', action = act.ShowLauncherArgs({ flags = 'FUZZY|TABS' }) },
-   {
-      key = 'F5',
-      mods = 'NONE',
-      action = act.ShowLauncherArgs({ flags = 'FUZZY|WORKSPACES' }),
-   },
-   -- toggle fullscreen
-   { key = 'F11', mods = 'NONE', action = act.ToggleFullScreen },
-   { key = 'F12', mods = 'NONE', action = act.ShowDebugOverlay },
-   { key = 'f', mods = mod.SUPER, action = act.Search({ CaseInSensitiveString = '' }) },
-   {
-      key = 'u',
-      mods = mod.SUPER,
-      action = wezterm.action.QuickSelectArgs({
-         label = 'open url',
-         patterns = {
-            'https?://\\S+',
-         },
-         action = wezterm.action_callback(function(window, pane)
-            local url = window:get_selection_text_for_pane(pane)
-            wezterm.log_info('opening: ' .. url)
-            wezterm.open_with(url)
-         end),
-      }),
-   },
+   { key = 'X', mods = 'CTRL', action = wezterm.action.ActivateCopyMode },
 
    -- copy/paste --
    { key = 'c', mods = 'CTRL|SHIFT', action = act.CopyTo('Clipboard') },
@@ -51,105 +27,100 @@ local keys = {
    -- tabs --
    -- tabs: spawn+close
    { key = 't', mods = mod.SUPER, action = act.SpawnTab('DefaultDomain') },
-   { key = 't', mods = mod.SUPER_REV, action = act.SpawnTab({ DomainName = 'WSL:Ubuntu' }) },
+   -- { key = 't', mods = mod.SUPER_REV, action = act.SpawnTab({ DomainName = 'WSL:Ubuntu' }) },
    { key = 'w', mods = mod.SUPER_REV, action = act.CloseCurrentTab({ confirm = false }) },
 
    -- tabs: navigation
-   { key = '[', mods = mod.SUPER, action = act.ActivateTabRelative(-1) },
-   { key = ']', mods = mod.SUPER, action = act.ActivateTabRelative(1) },
-   { key = '[', mods = mod.SUPER_REV, action = act.MoveTabRelative(-1) },
-   { key = ']', mods = mod.SUPER_REV, action = act.MoveTabRelative(1) },
+   { key = '{', mods = mod.SUPER_REV, action = act.ActivateTabRelative(-1) },
+   { key = '}', mods = mod.SUPER_REV, action = act.ActivateTabRelative(1) },
 
    -- window --
    -- spawn windows
    { key = 'n', mods = mod.SUPER, action = act.SpawnWindow },
 
    -- background controls --
-   {
-      key = [[/]],
-      mods = mod.SUPER,
-      action = wezterm.action_callback(function(window, _pane)
-         backdrops:random(window)
-      end),
-   },
-   {
-      key = [[,]],
-      mods = mod.SUPER,
-      action = wezterm.action_callback(function(window, _pane)
-         backdrops:cycle_back(window)
-      end),
-   },
-   {
-      key = [[.]],
-      mods = mod.SUPER,
-      action = wezterm.action_callback(function(window, _pane)
-         backdrops:cycle_forward(window)
-      end),
-   },
-   {
-      key = [[/]],
-      mods = mod.SUPER_REV,
-      action = act.InputSelector({
-         title = 'Select Background',
-         choices = backdrops:choices(),
-         fuzzy = true,
-         fuzzy_description = 'Select Background: ',
-         action = wezterm.action_callback(function(window, _pane, idx)
-            ---@diagnostic disable-next-line: param-type-mismatch
-            backdrops:set_img(window, tonumber(idx))
-         end),
-      }),
-   },
+   --{
+   --   key = [[/]],
+   --   mods = mod.SUPER,
+   --   action = wezterm.action_callback(function(window, _pane)
+   --      backdrops:random(window)
+   --   end),
+   --},
+   --{
+   --   key = [[,]],
+   --   mods = mod.SUPER,
+   --   action = wezterm.action_callback(function(window, _pane)
+   --      backdrops:cycle_back(window)
+   --   end),
+   --},
+   --{
+   --   key = [[.]],
+   --   mods = mod.SUPER,
+   --   action = wezterm.action_callback(function(window, _pane)
+   --      backdrops:cycle_forward(window)
+   --   end),
+   --},
+   --{
+   --   key = [[/]],
+   --   mods = mod.SUPER_REV,
+   --   action = act.InputSelector({
+   --      title = 'Select Background',
+   --      choices = backdrops:choices(),
+   --      fuzzy = true,
+   --      fuzzy_description = 'Select Background: ',
+   --      action = wezterm.action_callback(function(window, _pane, idx)
+   --         ---@diagnostic disable-next-line: param-type-mismatch
+   --         backdrops:set_img(window, tonumber(idx))
+   --      end),
+   --   }),
+   --},
 
    -- panes --
    -- panes: split panes
    {
-      key = [[\]],
-      mods = mod.SUPER,
+      key = 'd',
+      mods = mod.SUPER_REV,
       action = act.SplitVertical({ domain = 'CurrentPaneDomain' }),
    },
    {
-      key = [[\]],
-      mods = mod.SUPER_REV,
+      key = 'd',
+      mods = mod.SUPER,
       action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }),
    },
 
-   -- panes: zoom+close pane
-   { key = 'Enter', mods = mod.SUPER, action = act.TogglePaneZoomState },
-   { key = 'w', mods = mod.SUPER, action = act.CloseCurrentPane({ confirm = false }) },
+  -- -- panes: zoom+close pane
+   { key = 'w', mods = mod.SUPER, action = act.CloseCurrentPane({ confirm = true }) },
 
-   -- panes: navigation
-   { key = 'k', mods = mod.SUPER_REV, action = act.ActivatePaneDirection('Up') },
-   { key = 'j', mods = mod.SUPER_REV, action = act.ActivatePaneDirection('Down') },
-   { key = 'h', mods = mod.SUPER_REV, action = act.ActivatePaneDirection('Left') },
-   { key = 'l', mods = mod.SUPER_REV, action = act.ActivatePaneDirection('Right') },
-   {
-      key = 'p',
-      mods = mod.SUPER_REV,
-      action = act.PaneSelect({ alphabet = '1234567890', mode = 'SwapWithActiveKeepFocus' }),
-   },
+   { key = 'q', mods = mod.SUPER, action = act.QuitApplication },
 
-   -- key-tables --
-   -- resizes fonts
-   {
-      key = 'f',
-      mods = 'LEADER',
-      action = act.ActivateKeyTable({
-         name = 'resize_font',
-         one_shot = false,
-         timemout_miliseconds = 1000,
-      }),
-   },
-   -- resize panes
-   {
-      key = 'p',
-      mods = 'LEADER',
-      action = act.ActivateKeyTable({
-         name = 'resize_pane',
-         one_shot = false,
-         timemout_miliseconds = 1000,
-      }),
-   },
+
+  -- {
+  --    key = 'p',
+  --    mods = mod.SUPER_REV,
+  --    action = act.PaneSelect({ alphabet = '1234567890', mode = 'SwapWithActiveKeepFocus' }),
+  -- },
+
+  -- -- key-tables --
+  -- -- resizes fonts
+  -- {
+  --    key = 'f',
+  --    mods = 'LEADER',
+  --    action = act.ActivateKeyTable({
+  --       name = 'resize_font',
+  --       one_shot = false,
+  --       timemout_miliseconds = 1000,
+  --    }),
+  -- },
+  -- -- resize panes
+  -- {
+  --    key = 'p',
+  --    mods = 'LEADER',
+  --    action = act.ActivateKeyTable({
+  --       name = 'resize_pane',
+  --       one_shot = false,
+  --       timemout_miliseconds = 1000,
+  --    }),
+  -- },
 }
 
 local key_tables = {
@@ -181,8 +152,5 @@ local mouse_bindings = {
 
 return {
    disable_default_key_bindings = true,
-   leader = { key = 'Space', mods = mod.SUPER_REV },
    keys = keys,
-   key_tables = key_tables,
-   mouse_bindings = mouse_bindings,
 }
