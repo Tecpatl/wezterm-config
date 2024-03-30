@@ -39,41 +39,13 @@ local keys = {
    { key = 'n', mods = mod.SUPER, action = act.SpawnWindow },
 
    -- background controls --
-   --{
-   --   key = [[/]],
-   --   mods = mod.SUPER,
-   --   action = wezterm.action_callback(function(window, _pane)
-   --      backdrops:random(window)
-   --   end),
-   --},
-   --{
-   --   key = [[,]],
-   --   mods = mod.SUPER,
-   --   action = wezterm.action_callback(function(window, _pane)
-   --      backdrops:cycle_back(window)
-   --   end),
-   --},
-   --{
-   --   key = [[.]],
-   --   mods = mod.SUPER,
-   --   action = wezterm.action_callback(function(window, _pane)
-   --      backdrops:cycle_forward(window)
-   --   end),
-   --},
-   --{
-   --   key = [[/]],
-   --   mods = mod.SUPER_REV,
-   --   action = act.InputSelector({
-   --      title = 'Select Background',
-   --      choices = backdrops:choices(),
-   --      fuzzy = true,
-   --      fuzzy_description = 'Select Background: ',
-   --      action = wezterm.action_callback(function(window, _pane, idx)
-   --         ---@diagnostic disable-next-line: param-type-mismatch
-   --         backdrops:set_img(window, tonumber(idx))
-   --      end),
-   --   }),
-   --},
+   {
+      key = [[,]],
+      mods = mod.SUPER_REV,
+      action = wezterm.action_callback(function(window, _pane)
+         backdrops:cycle_back(window)
+      end),
+   },
 
    -- panes --
    -- panes: split panes
@@ -93,52 +65,46 @@ local keys = {
 
    { key = 'q', mods = mod.SUPER, action = act.QuitApplication },
 
-
-  -- {
-  --    key = 'p',
-  --    mods = mod.SUPER_REV,
-  --    action = act.PaneSelect({ alphabet = '1234567890', mode = 'SwapWithActiveKeepFocus' }),
-  -- },
-
-  -- -- key-tables --
-  -- -- resizes fonts
-  -- {
-  --    key = 'f',
-  --    mods = 'LEADER',
-  --    action = act.ActivateKeyTable({
-  --       name = 'resize_font',
-  --       one_shot = false,
-  --       timemout_miliseconds = 1000,
-  --    }),
-  -- },
-  -- -- resize panes
-  -- {
-  --    key = 'p',
-  --    mods = 'LEADER',
-  --    action = act.ActivateKeyTable({
-  --       name = 'resize_pane',
-  --       one_shot = false,
-  --       timemout_miliseconds = 1000,
-  --    }),
-  -- },
+   -- resizes fonts
+   { key = "+", mods = 'CTRL|SHIFT', action = act.IncreaseFontSize },
+   { key = "_", mods = 'CTRL|SHIFT', action = act.DecreaseFontSize },
+   { key = 'UpArrow', mods = mod.SUPER, action = act.ToggleFullScreen },
 }
 
 local key_tables = {
-   resize_font = {
-      { key = 'k', action = act.IncreaseFontSize },
-      { key = 'j', action = act.DecreaseFontSize },
-      { key = 'r', action = act.ResetFontSize },
-      { key = 'Escape', action = 'PopKeyTable' },
-      { key = 'q', action = 'PopKeyTable' },
-   },
-   resize_pane = {
-      { key = 'k', action = act.AdjustPaneSize({ 'Up', 1 }) },
-      { key = 'j', action = act.AdjustPaneSize({ 'Down', 1 }) },
-      { key = 'h', action = act.AdjustPaneSize({ 'Left', 1 }) },
-      { key = 'l', action = act.AdjustPaneSize({ 'Right', 1 }) },
-      { key = 'Escape', action = 'PopKeyTable' },
-      { key = 'q', action = 'PopKeyTable' },
-   },
+  resize_pane = {
+    { key = 'LeftArrow', action = act.AdjustPaneSize { 'Left', 1 } },
+    { key = 'h', action = act.AdjustPaneSize { 'Left', 1 } },
+
+    { key = 'RightArrow', action = act.AdjustPaneSize { 'Right', 1 } },
+    { key = 'l', action = act.AdjustPaneSize { 'Right', 1 } },
+
+    { key = 'UpArrow', action = act.AdjustPaneSize { 'Up', 1 } },
+    { key = 'k', action = act.AdjustPaneSize { 'Up', 1 } },
+
+    { key = 'DownArrow', action = act.AdjustPaneSize { 'Down', 1 } },
+    { key = 'j', action = act.AdjustPaneSize { 'Down', 1 } },
+
+    -- Cancel the mode by pressing escape
+    { key = 'Escape', action = 'PopKeyTable' },
+  },
+
+  -- Defines the keys that are active in our activate-pane mode.
+  -- 'activate_pane' here corresponds to the name="activate_pane" in
+  -- the key assignments above.
+  activate_pane = {
+    { key = 'LeftArrow', action = act.ActivatePaneDirection 'Left' },
+    { key = 'h', action = act.ActivatePaneDirection 'Left' },
+
+    { key = 'RightArrow', action = act.ActivatePaneDirection 'Right' },
+    { key = 'l', action = act.ActivatePaneDirection 'Right' },
+
+    { key = 'UpArrow', action = act.ActivatePaneDirection 'Up' },
+    { key = 'k', action = act.ActivatePaneDirection 'Up' },
+
+    { key = 'DownArrow', action = act.ActivatePaneDirection 'Down' },
+    { key = 'j', action = act.ActivatePaneDirection 'Down' },
+  },
 }
 
 local mouse_bindings = {
@@ -152,5 +118,7 @@ local mouse_bindings = {
 
 return {
    disable_default_key_bindings = true,
+   leader = { key = 'Space', mods = 'ALT|SHIFT' },
+   key_tables = key_tables,
    keys = keys,
 }
